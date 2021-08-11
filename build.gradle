@@ -1,0 +1,38 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.5.2'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'com.google.cloud.tools.jib' version '3.0.0'
+}
+
+group = 'com.provectus.oddplatform'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '13'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	compileOnly 'org.projectlombok:lombok:1.18.20'
+	annotationProcessor 'org.projectlombok:lombok:1.18.20'
+}
+
+jib {
+	from {
+		image = 'adoptopenjdk/openjdk13:x86_64-alpine-jre-13.0.2_8'
+	}
+	to {
+		image = 'opendatadiscovery/odd-platform-puller'
+		tags = ['latest', project.version]
+	}
+	container {
+		appRoot = '/app'
+		jvmFlags = ['-Xms512M', '-Xmx512M']
+		ports = ['8080']
+		workingDirectory = '/app'
+	}
+	allowInsecureRegistries = false
+}

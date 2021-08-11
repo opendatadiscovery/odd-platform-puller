@@ -1,0 +1,24 @@
+spring:
+  main:
+    web-application-type: none
+
+platform:
+  host-url: http://localhost:8080/
+
+  fetching-delay: 10s
+
+  auth:
+    # DISABLED, LOGIN_FORM, OAUTH2
+    type: DISABLED
+
+    # Must be specified if auth.type is LOGIN_FORM
+    login-form-credentials: admin:admin
+
+    # All entries must be specified if auth.type is OAUTH2
+    oauth:
+      auth-domain: https://odc-auth.auth.eu-central-1.amazoncognito.com/
+      client-id: 3id1uqe1plhksh445gimekfna4
+      client-secret: 12p28ct2sr282nc02ju3sdl32mh3aop8cjj5bl5d7t9m775q80kf
+
+puller:
+  worker-thread-pool-size: 5

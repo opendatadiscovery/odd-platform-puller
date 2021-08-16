@@ -1,7 +1,3 @@
-spring:
-  main:
-    web-application-type: none
-
 platform:
   host-url:
 
@@ -22,3 +18,13 @@ platform:
 
 puller:
   worker-thread-pool-size: 5
+
+management:
+  endpoints:
+    enabled: false
+    web:
+      base-path: /
+  info:
+    enabled: true
+  health:
+    enabled: true

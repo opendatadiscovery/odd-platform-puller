@@ -1,11 +1,10 @@
 package com.provectus.oddplatform.puller.service;
 
-import com.provectus.oddplatform.puller.dto.DataSourceDto;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.opendatadiscovery.client.model.DataEntityList;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,7 +34,7 @@ public class AdapterRestServiceImpl implements AdapterRestService {
 
 
     @Override
-    public Mono<String> getRawEntityList(final URL adapterHost) {
+    public Mono<DataEntityList> getEntities(final URL adapterHost) {
         final URI uri;
         try {
             uri = new URL(adapterHost, "/entities").toURI();
@@ -47,7 +46,7 @@ public class AdapterRestServiceImpl implements AdapterRestService {
         return this.webClient.get()
             .uri(uri)
             .exchangeToMono(r -> r.statusCode() == HttpStatus.OK
-                ? r.bodyToMono(String.class)
+                ? r.bodyToMono(DataEntityList.class)
                 : r.createException().flatMap(Mono::error));
     }
 }

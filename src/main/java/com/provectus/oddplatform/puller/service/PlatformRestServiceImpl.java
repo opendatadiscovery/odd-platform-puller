@@ -3,6 +3,7 @@ package com.provectus.oddplatform.puller.service;
 import com.provectus.oddplatform.puller.dto.DataSourceDto;
 import com.provectus.oddplatform.puller.service.auth.AuthManager;
 import lombok.extern.slf4j.Slf4j;
+import org.opendatadiscovery.client.model.DataEntityList;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,8 @@ public class PlatformRestServiceImpl implements PlatformRestService {
     }
 
     @Override
-    public Mono<Integer> ingest(final String rawJson) {
-        return authenticate().flatMap(authHeader -> ingest(rawJson, authHeader));
+    public Mono<Integer> ingest(final DataEntityList payload) {
+        return authenticate().flatMap(authHeader -> ingest(payload, authHeader));
     }
 
     private Flux<DataSourceDto> fetchDataSources(final HttpHeaders authHeader) {
@@ -42,11 +43,11 @@ public class PlatformRestServiceImpl implements PlatformRestService {
                 : r.createException().flux().flatMap(Flux::error));
     }
 
-    private Mono<Integer> ingest(final String rawJson, final HttpHeaders authHeader) {
+    private Mono<Integer> ingest(final DataEntityList payload, final HttpHeaders authHeader) {
         return webClient.post()
             .uri("/ingestion/entities")
             .headers(headers -> headers.putAll(authHeader))
-            .bodyValue(rawJson)
+            .bodyValue(payload)
             .exchangeToMono(r -> r.statusCode() == HttpStatus.OK
                 ? Mono.just(r.statusCode().value())
                 : r.createException().flatMap(Mono::error));

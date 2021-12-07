@@ -58,8 +58,8 @@ public class PullerWorkerManager {
 
         jobRepository.entrySet().removeIf(e -> {
             if (!batchIds.contains(e.getKey())) {
-                log.info("Data Source {} considered inactive", e.getValue().getLeft().getOddrn());
-                e.getValue().getRight().cancel(false);
+                log.info("Data Source {} considered inactive", e.getValue().left().getId());
+                e.getValue().right().cancel(false);
                 return true;
             }
 
@@ -70,13 +70,13 @@ public class PullerWorkerManager {
     private Pair<DataSourceDto, ScheduledFuture<?>> scheduleTask(final DataSourceDto dataSource,
                                                                  final Pair<DataSourceDto, ScheduledFuture<?>> value) {
         if (value != null) {
-            if (areDataSourceEqual(value.getLeft(), dataSource)) {
-                log.info("Data Source {} hasn't been changed", dataSource.getOddrn());
+            if (areDataSourceEqual(value.left(), dataSource)) {
+                log.info("Data Source {} hasn't been changed", dataSource.getId());
                 return value;
             }
 
-            log.info("Data Source {} has been changed, recreating puller task", dataSource.getOddrn());
-            value.getRight().cancel(true);
+            log.info("Data Source {} has been changed, recreating puller task", dataSource.getId());
+            value.right().cancel(true);
         }
 
         final PullerTask task = new PullerTask(dataSource, adapterRestService, platformRestService);
@@ -91,10 +91,6 @@ public class PullerWorkerManager {
         return d1.getInterval() == d2.getInterval() && d1.getEndpoint().equals(d2.getEndpoint());
     }
 
-    @RequiredArgsConstructor
-    @Data
-    private static class Pair<L, R> {
-        private final L left;
-        private final R right;
+    private record Pair<L, R>(L left, R right) {
     }
 }

@@ -11,7 +11,6 @@ import java.net.URL;
 public class DataSourceDto {
     private long id;
     private String name;
-    private String oddrn;
 
     @JsonProperty("pulling_interval")
     private long interval;

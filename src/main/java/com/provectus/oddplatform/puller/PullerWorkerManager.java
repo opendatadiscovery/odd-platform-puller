@@ -7,6 +7,8 @@ import com.provectus.oddplatform.puller.task.PullerTask;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.opendatadiscovery.oddrn.Generator;
+import org.opendatadiscovery.oddrn.model.ODDPlatformDataSourcePath;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -24,13 +26,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class PullerWorkerManager {
-    private final ThreadPoolTaskScheduler scheduler;
-
-    private final BlockingQueue<List<DataSourceDto>> queue;
-    private final Map<Long, Pair<DataSourceDto, ScheduledFuture<?>>> jobRepository = new HashMap<>();
-
     private final AdapterRestService adapterRestService;
     private final PlatformRestService platformRestService;
+    private final BlockingQueue<List<DataSourceDto>> queue;
+    private final ThreadPoolTaskScheduler scheduler;
+
+    private final Map<Long, Pair<DataSourceDto, ScheduledFuture<?>>> jobRepository = new HashMap<>();
+    private final Generator generator = new Generator();
 
     @EventListener(ApplicationReadyEvent.class)
     public void manage() throws InterruptedException {
@@ -79,12 +81,29 @@ public class PullerWorkerManager {
             value.right().cancel(true);
         }
 
-        final PullerTask task = new PullerTask(dataSource, adapterRestService, platformRestService);
+        final PullerTask task = new PullerTask(
+            dataSource,
+            adapterRestService,
+            platformRestService,
+            generateSyntheticOddrn(dataSource.getId())
+        );
 
         return new Pair<>(
             dataSource,
             scheduler.scheduleAtFixedRate(task, dataSource.getInterval() * 1000)
         );
+    }
+
+    private String generateSyntheticOddrn(final long dataSourceId) {
+        final ODDPlatformDataSourcePath oddrnPath = ODDPlatformDataSourcePath.builder()
+            .datasourceId(dataSourceId)
+            .build();
+
+        try {
+            return generator.generate(oddrnPath, "datasourceId");
+        } catch (final Exception e) {
+            throw new RuntimeException(String.format("Couldn't generate oddrn for data source: %s", dataSourceId), e);
+        }
     }
 
     private boolean areDataSourceEqual(final DataSourceDto d1, final DataSourceDto d2) {

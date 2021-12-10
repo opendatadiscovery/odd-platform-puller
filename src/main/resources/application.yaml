@@ -22,8 +22,6 @@ puller:
 management:
   endpoints:
     enabled: false
-    web:
-      base-path: /
   info:
     enabled: true
   health:

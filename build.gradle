@@ -3,6 +3,15 @@ plugins {
 	id 'org.springframework.boot' version '2.5.2'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'com.google.cloud.tools.jib' version '3.0.0'
+	id "de.undercouch.download" version "4.1.2" apply false
+}
+
+ext {
+	env = findProperty('env') ?: 'prod'
+}
+
+if (env == 'dev') {
+	apply plugin: "de.undercouch.download"
 }
 
 group = 'com.provectus.oddplatform'
@@ -31,11 +40,40 @@ jib {
 		image = 'opendatadiscovery/odd-platform-puller'
 		tags = ['latest', project.version]
 	}
-	container {
-		appRoot = '/app'
-		jvmFlags = ['-Xms512M', '-Xmx512M']
-		ports = ['8080']
-		workingDirectory = '/app'
+	if (env == "dev") {
+		extraDirectories {
+			paths {
+				path {
+					from = file('build/otlp/')
+					into = '/app/otlp/'
+				}
+			}
+		}
+		container {
+			creationTime = 'USE_CURRENT_TIMESTAMP'
+			appRoot = '/app'
+			jvmFlags = ['-Xms512M', '-Xmx512M', '-javaagent:/app/otlp/opentelemetry-javaagent.jar']
+			ports = ['8080']
+			workingDirectory = '/app'
+		}
+	} else {
+		container {
+			creationTime = 'USE_CURRENT_TIMESTAMP'
+			appRoot = '/app'
+			jvmFlags = ['-Xms512M', '-Xmx512M']
+			ports = ['8080']
+			workingDirectory = '/app'
+		}
 	}
 	allowInsecureRegistries = false
+}
+
+if (env == "dev") {
+	task downloadOtlp(type: Download) {
+		src "https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar"
+		dest "${buildDir}/otlp/opentelemetry-javaagent.jar"
+		overwrite true
+	}
+
+	jibDockerBuild.dependsOn tasks.downloadOtlp
 }

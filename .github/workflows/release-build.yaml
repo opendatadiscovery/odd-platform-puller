@@ -63,4 +63,4 @@ jobs:
         if: ${{ github.event.action == 'published' }}
         run: |
           docker tag odd-platform-puller:${{ steps.get-version.outputs.version }} ghcr.io/opendatadiscovery/odd-platform-puller:${{ steps.get-version.outputs.version }}
-          docker push ghcr.io/opendatadiscovery/odd-platform-pulller:${{ steps.get-version.outputs.version }}
+          docker push ghcr.io/opendatadiscovery/odd-platform-puller:${{ steps.get-version.outputs.version }}

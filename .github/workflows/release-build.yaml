@@ -58,7 +58,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.PAT_GITHUB }}
+          password: ${{ secrets.ORG_TOKEN_GHCR }}
       - name: Retag image in GHCR
         if: ${{ github.event.action == 'published' }}
         run: |

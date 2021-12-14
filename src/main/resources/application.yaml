@@ -17,6 +17,8 @@ platform:
       client-secret:
 
 puller:
+  client:
+    max-in-memory-size: 67_108_864
   worker-thread-pool-size: 5
 
 management:

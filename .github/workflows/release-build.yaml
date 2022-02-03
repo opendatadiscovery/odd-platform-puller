@@ -64,3 +64,5 @@ jobs:
         run: |
           docker tag odd-platform-puller:${{ steps.get-version.outputs.version }} ghcr.io/opendatadiscovery/odd-platform-puller:${{ steps.get-version.outputs.version }}
           docker push ghcr.io/opendatadiscovery/odd-platform-puller:${{ steps.get-version.outputs.version }}
+          docker tag odd-platform-puller:${{ steps.get-version.outputs.version }} ghcr.io/opendatadiscovery/odd-platform-puller:latest
+          docker push ghcr.io/opendatadiscovery/odd-platform-puller:latest
